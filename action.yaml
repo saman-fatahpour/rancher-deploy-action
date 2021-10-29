@@ -4,22 +4,6 @@ author: 'Giau. Tran Minh'
 branding:
   icon: 'check'
   color: 'gray-dark'
-inputs:
-  RANCHER_ACCESS_KEY:
-    description: 'API Access key created in Rancher'
-    required: true
-  RANCHER_SECRET_KEY:
-    description: 'API Secret key created in Rancher'
-    required: true
-  RANCHER_URL_API:
-    description: 'API Url of your rancher project workload'
-    required: true
-  SERVICE_NAME:
-    description: 'Name of your service on Rancher cluster what you want deploy'
-    required: true
-  DOCKER_IMAGE:
-    description: 'URL to your docker image (ex: AWS or docker registry)'
-    required: true
 runs:
   using: 'node12'
   main: 'dist/index.js'
