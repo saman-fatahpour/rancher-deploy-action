@@ -208,6 +208,12 @@ class Rancher {
                 const data = yield req.json();
                 data.containers[0].image = config.image;
                 const { actions } = data;
+                //due to a bug in rancher when redeploying, imagePullSecrets is removed and image pull from private repo is failed with error: Imagepullbackoff, if we do redeploy action two times it will save imagePullSecrets again from the initial parsed object
+                yield (0, node_fetch_1.default)(actions.redeploy, {
+                    method: 'PUT',
+                    headers: this.headers,
+                    body: JSON.stringify(data)
+                });
                 const req2 = yield (0, node_fetch_1.default)(actions.redeploy, {
                     method: 'PUT',
                     headers: this.headers,
