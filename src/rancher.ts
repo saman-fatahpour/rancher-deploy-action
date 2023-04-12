@@ -1,4 +1,4 @@
-import fetch from 'node-fetch';
+import axios from 'axios';
 
 type DeploymentConfig = {
   image: string;
@@ -63,24 +63,18 @@ class Rancher {
   }
 
   async fetchProjectsAsync() {
-    const req = await fetch(`${this.rancherUrlApi}/projects`, {
-      method: 'GET',
-      headers: this.headers
-    });
+    const req = await axios.get(this.rancherUrlApi, { headers: this.headers });
 
-    return req.json() as Promise<{
+    return req.data as Promise<{
       data: Project[];
     }>;
   }
 
   async fetchProjectWorkloadsAsync(project: Project) {
     const { links } = project;
-    const req = await fetch(links.workloads, {
-      method: 'GET',
-      headers: this.headers
-    });
+    const req = await axios.get(links.workloads, { headers: this.headers });
 
-    return req.json() as Promise<{
+    return req.data as Promise<{
       data: Workload[];
     }>;
   }
@@ -88,7 +82,7 @@ class Rancher {
   async changeImageAsync(wl: Workload, config: DeploymentConfig): Promise<Workload> {
     const { links } = wl;
 
-    const req = await fetch(links.self, { method: 'GET', headers: this.headers });
+    const req = await axios.get(links.self, { headers: this.headers });
     if (req.status === 404) {
       const data = {
         containers: [
@@ -101,33 +95,21 @@ class Rancher {
         namespaceId: wl.namespaceId
       };
 
-      const req2 = await fetch(links.update, {
-        method: 'POST',
-        headers: this.headers,
-        body: JSON.stringify(data)
-      });
+      const req2 = await axios.post(links.update, JSON.stringify(data), { headers: this.headers });
 
-      return req2.json() as Promise<Workload>;
+      return req2.data as Promise<Workload>;
     } else {
-      const data: any = await req.json();
+      const data: any = await req.data;
       data.containers[0].image = config.image;
 
       const { actions } = data;
 
       //due to a bug in rancher when redeploying, imagePullSecrets is removed and image pull from private repo is failed with error: Imagepullbackoff, if we do redeploy action two times it will save imagePullSecrets again from the initial parsed object
-      await fetch(actions.redeploy, {
-        method: 'PUT',
-        headers: this.headers,
-        body: JSON.stringify(data)
-      });
+      await axios.put(actions.redeploy, JSON.stringify(data), { headers: this.headers });
 
-      const req2 = await fetch(actions.redeploy, {
-        method: 'PUT',
-        headers: this.headers,
-        body: JSON.stringify(data)
-      });
+      const req2 = await axios.put(actions.redeploy, JSON.stringify(data), { headers: this.headers });
 
-      return req2.json() as Promise<Workload>;
+      return req2.data as Promise<Workload>;
     }
   }
 }
