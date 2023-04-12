@@ -63,7 +63,7 @@ class Rancher {
   }
 
   async fetchProjectsAsync() {
-    const req = await axios.get(this.rancherUrlApi, { headers: this.headers });
+    const req = await axios.get(`${this.rancherUrlApi}/projects`, { headers: this.headers });
 
     return req.data as Promise<{
       data: Project[];
