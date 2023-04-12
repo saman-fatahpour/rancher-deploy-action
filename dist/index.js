@@ -1181,7 +1181,7 @@ class Rancher {
     }
     fetchProjectsAsync() {
         return __awaiter(this, void 0, void 0, function* () {
-            const req = yield axios_1.default.get(this.rancherUrlApi, { headers: this.headers });
+            const req = yield axios_1.default.get(`${this.rancherUrlApi}/projects`, { headers: this.headers });
             return req.data;
         });
     }
